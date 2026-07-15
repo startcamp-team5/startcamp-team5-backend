@@ -616,6 +616,7 @@ def seed_database() -> None:
             f"패턴: {JSON_PATTERN}"
         )
 
+    print(f"[DB] 시드 파일 {len(json_files)}개 발견")
 
     total_inserted = 0
     total_updated = 0

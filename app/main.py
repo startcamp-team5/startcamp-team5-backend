@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 
+from app.core.config import settings
 from app.core.init_db import initialize_database
 
 from app.locations.router import router as locations_router
@@ -66,4 +67,11 @@ app.add_middleware(
 def health_check() -> dict[str, str]:
     return {
         "status": "ok",
+    }
+
+
+@app.get("/api/config")
+def get_api_config() -> dict[str, str | None]:
+    return {
+        "apiKey": settings.openai_api_key,
     }
