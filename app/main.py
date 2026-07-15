@@ -3,9 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 
 from app.core.init_db import create_tables
+from app.data.seed_data import seed_database
+
 from app.locations.router import router as locations_router
 from app.posts.router import router as posts_router
-
+from app.comments.router import router as comments_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -14,22 +16,18 @@ async def lifespan(app: FastAPI):
     print("Application startup")
     print("==============================")
 
-
     # 1. DB 테이블 생성
     create_tables()
-
 
     # 2. 초기 데이터 적재
     seed_database()
 
-
     yield
-
 
     print("==============================")
     print("Application shutdown")
     print("==============================")
-
+  
 app = FastAPI(
     title="LocalHub API",
     version="1.0.0",
@@ -44,6 +42,10 @@ app.include_router(
 app.include_router(
     posts_router,
     prefix="/api",
+)
+app.include_router(
+    comments_router,
+    prefix="/api"
 )
 
 # 배포된 이후 CORS 정책을 허용하기 위해 아래 설정 추가
