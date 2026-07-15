@@ -20,7 +20,7 @@ from app.comments.service import CommentService
 
 
 router = APIRouter(
-    prefix="/posts/{post_id}/comments",
+    prefix="/posts/{postId}/comments",
     tags=["댓글"],
 )
 
@@ -36,9 +36,9 @@ DbSession = Annotated[Session, Depends(get_db)]
 def create_comment(
     request: CommentCreateRequest,
     db: DbSession,
-    post_id: int = Path(gt=0, description="게시글 ID"),
+    postId: int = Path(gt=0, description="게시글 ID"),
 ) -> ApiResponse[CommentCreateData]:
-    data = CommentService(db).create_comment(post_id=post_id, request=request)
+    data = CommentService(db).create_comment(post_id=postId, request=request)
 
     return ApiResponse(
         success=True,
@@ -54,11 +54,11 @@ def create_comment(
 )
 def list_comments(
     db: DbSession,
-    post_id: int = Path(gt=0, description="게시글 ID"),
+    postId: int = Path(gt=0, description="게시글 ID"),
     page: int = Query(default=1, ge=1, description="페이지 번호"),
     size: int = Query(default=20, ge=1, le=100, description="페이지 크기"),
 ) -> ApiResponse[CommentPageData]:
-    rows, total = CommentService(db).list_comments(post_id=post_id, page=page, size=size)
+    rows, total = CommentService(db).list_comments(post_id=postId, page=page, size=size)
 
     items = [
         CommentListItem(
@@ -92,7 +92,7 @@ def list_comments(
 )
 def delete_comment(
     db: DbSession,
-    post_id: int = Path(gt=0, description="게시글 ID"),
+    postId: int = Path(gt=0, description="게시글 ID"),
     comment_id: int = Path(gt=0, description="댓글 ID"),
     request: CommentDeleteRequest = Body(...),
 ) -> ApiResponse[None]:
@@ -113,7 +113,7 @@ def delete_comment(
 def update_comment(
     request: CommentUpdateRequest,
     db: DbSession,
-    post_id: int = Path(gt=0, description="게시글 ID"),
+    postId: int = Path(gt=0, description="게시글 ID"),
     comment_id: int = Path(gt=0, description="댓글 ID"),
 ) -> ApiResponse[None]:
     CommentService(db).update_comment(comment_id=comment_id, request=request)
