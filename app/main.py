@@ -9,9 +9,26 @@ from app.posts.router import router as posts_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+
+    print("==============================")
+    print("Application startup")
+    print("==============================")
+
+
+    # 1. DB 테이블 생성
     create_tables()
+
+
+    # 2. 초기 데이터 적재
+    seed_database()
+
+
     yield
 
+
+    print("==============================")
+    print("Application shutdown")
+    print("==============================")
 
 app = FastAPI(
     title="LocalHub API",

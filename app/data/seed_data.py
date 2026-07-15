@@ -606,7 +606,8 @@ def process_json_file(
     return result_count
 
 
-def seed() -> None:
+def seed_database() -> None:
+
     json_files = sorted(DATA_DIR.glob(JSON_PATTERN))
 
     if not json_files:
@@ -616,21 +617,25 @@ def seed() -> None:
             f"패턴: {JSON_PATTERN}"
         )
 
-    create_tables()
 
     total_inserted = 0
     total_updated = 0
     total_skipped = 0
 
+
     with SessionLocal() as db:
+
         try:
+
             categories = seed_content_categories(db)
+
             seed_board_categories(db)
 
-            # board category 생성 내용을 먼저 DB 세션에 반영
             db.flush()
 
+
             for json_path in json_files:
+
                 result = process_json_file(
                     db=db,
                     json_path=json_path,
@@ -641,10 +646,14 @@ def seed() -> None:
                 total_updated += result["updated"]
                 total_skipped += result["skipped"]
 
+
             db.commit()
 
+
         except Exception:
+
             db.rollback()
+
             raise
 
     print()
@@ -657,4 +666,4 @@ def seed() -> None:
 
 
 if __name__ == "__main__":
-    seed()
+    seed_database()
