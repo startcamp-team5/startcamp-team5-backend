@@ -224,7 +224,7 @@ def get_map_locations(
 # --------------------------------------------------
 
 @router.get(
-    "/{external_id}",
+    "/{externalId}",
 
     response_model=ApiResponse[LocationDetailResponse],
 
@@ -255,7 +255,7 @@ def get_map_locations(
 def get_location(
 
 
-    external_id: str = Path(
+    externalId: str = Path(
 
         title="지역정보 ID",
 
@@ -283,7 +283,7 @@ def get_location(
 
     data = LocationService(db).get_location(
 
-        external_id
+        externalId
 
     )
 

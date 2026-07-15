@@ -4,3 +4,7 @@ __pycache__/
 
 .env
 app/data/localhub.db
+
+tests
+
+API_definition.md

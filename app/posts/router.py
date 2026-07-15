@@ -67,18 +67,18 @@ def get_posts(
 
 
 @router.get(
-    "/{post_id}",
+    "/{postId}",
     response_model=ApiResponse[PostDetailData],
     summary="게시글 상세 조회",
 )
 def get_post(
     db: DbSession,
-    post_id: int = Path(
+    postId: int = Path(
         gt=0,
         description="게시글 ID",
     ),
 ) -> ApiResponse[PostDetailData]:
-    data = PostService(db).get_post(post_id)
+    data = PostService(db).get_post(postId)
 
     return ApiResponse(
         success=True,
@@ -107,20 +107,20 @@ def create_post(
 
 
 @router.put(
-    "/{post_id}",
+    "/{postId}",
     response_model=ApiResponse[None],
     summary="게시글 수정",
 )
 def update_post(
     request: PostUpdateRequest,
     db: DbSession,
-    post_id: int = Path(
+    postId: int = Path(
         gt=0,
         description="게시글 ID",
     ),
 ) -> ApiResponse[None]:
     PostService(db).update_post(
-        post_id=post_id,
+        post_id=postId,
         request=request,
     )
 
@@ -132,20 +132,20 @@ def update_post(
 
 
 @router.delete(
-    "/{post_id}",
+    "/{postId}",
     response_model=ApiResponse[None],
     summary="게시글 삭제",
 )
 def delete_post(
     db: DbSession,
-    post_id: int = Path(
+    postId: int = Path(
         gt=0,
         description="게시글 ID",
     ),
     request: PostDeleteRequest = Body(...),
 ) -> ApiResponse[None]:
     PostService(db).delete_post(
-        post_id=post_id,
+        post_id=postId,
         request=request,
     )
 

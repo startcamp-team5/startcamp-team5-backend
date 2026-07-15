@@ -41,6 +41,11 @@ class LocationListItem(BaseModel):
 
 class LocationPageResponse(BaseModel):
 
+    model_config = ConfigDict(
+        populate_by_name=True,
+        serialize_by_alias=True,
+    )
+
     items: list[LocationListItem]
 
     page: int

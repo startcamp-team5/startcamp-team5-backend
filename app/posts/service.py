@@ -43,7 +43,7 @@ class PostService:
         items = [
             PostListItem(
                 post_id=post.id,
-                local_content_id=post.local_content_id,
+                location_id=post.local_content_id,
                 category=category_code,
                 title=post.title,
                 author_name=post.author_name,
@@ -81,7 +81,7 @@ class PostService:
 
         return PostDetailData(
             post_id=post.id,
-            local_content_id=post.local_content_id,
+            location_id=post.local_content_id,
             category=category_code,
             title=post.title,
             content=post.content,
@@ -95,7 +95,7 @@ class PostService:
         self,
         request: PostCreateRequest,
     ) -> PostCreateData:
-        category_code = request.board_category_code.upper()
+        category_code = request.category.strip().upper()
 
         board_category = self.repository.find_category_by_code(
             category_code
@@ -107,10 +107,10 @@ class PostService:
                 detail="존재하지 않는 게시판 카테고리입니다.",
             )
 
-        if request.local_content_id is not None:
+        if request.location_id is not None:
             local_content = (
                 self.repository.find_local_content_by_id(
-                    request.local_content_id
+                    request.location_id
                 )
             )
 
@@ -122,7 +122,7 @@ class PostService:
 
         post = Post(
             board_category_id=board_category.id,
-            local_content_id=request.local_content_id,
+            local_content_id=request.location_id,
             title=request.title,
             content=request.content,
             author_name=request.author_name,

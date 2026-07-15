@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Generic, TypeVar
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 T = TypeVar("T")
@@ -19,13 +19,29 @@ class PostCreateRequest(BaseModel):
         str_strip_whitespace=True,
     )
 
-    local_content_id: int | None = Field(
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_input(cls, data: object) -> object:
+        if isinstance(data, dict):
+            normalized_data = dict(data)
+
+            if "boardCategoryCode" in normalized_data and "category" not in normalized_data:
+                normalized_data["category"] = normalized_data.pop("boardCategoryCode")
+
+            if "board_category_code" in normalized_data and "category" not in normalized_data:
+                normalized_data["category"] = normalized_data.pop("board_category_code")
+
+            return normalized_data
+
+        return data
+
+    location_id: int | None = Field(
         default=None,
-        alias="localContentId",
+        alias="locationId",
         gt=0,
     )
-    board_category_code: str = Field(
-        alias="boardCategoryCode",
+    category: str = Field(
+        alias="category",
         min_length=1,
         max_length=30,
     )
@@ -99,9 +115,9 @@ class PostListItem(BaseModel):
     )
 
     post_id: int = Field(alias="postId")
-    local_content_id: int | None = Field(
+    location_id: int | None = Field(
         default=None,
-        alias="localContentId",
+        alias="locationId",
     )
     category: str
     title: str
@@ -117,9 +133,9 @@ class PostDetailData(BaseModel):
     )
 
     post_id: int = Field(alias="postId")
-    local_content_id: int | None = Field(
+    location_id: int | None = Field(
         default=None,
-        alias="localContentId",
+        alias="locationId",
     )
     category: str
     title: str
