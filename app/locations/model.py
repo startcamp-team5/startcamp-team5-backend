@@ -102,26 +102,6 @@ class ContentCategory(Base):
 
 class DataSource(Base):
     __tablename__ = "data_sources"
-    __table_args__ = (
-        CheckConstraint(
-            "kogl_type IS NULL OR kogl_type BETWEEN 1 AND 4",
-            name="ck_data_sources_kogl_type",
-        ),
-        CheckConstraint(
-            """
-            commercial_use_allowed IS NULL
-            OR commercial_use_allowed IN (0, 1)
-            """,
-            name="ck_data_sources_commercial_use",
-        ),
-        CheckConstraint(
-            """
-            modification_allowed IS NULL
-            OR modification_allowed IN (0, 1)
-            """,
-            name="ck_data_sources_modification",
-        ),
-    )
 
     id: Mapped[int] = mapped_column(
         Integer,
@@ -188,14 +168,6 @@ class LocalContent(Base):
             name="ck_local_contents_longitude",
         ),
         CheckConstraint(
-            """
-            end_date IS NULL
-            OR start_date IS NULL
-            OR end_date >= start_date
-            """,
-            name="ck_local_contents_dates",
-        ),
-        CheckConstraint(
             "is_active IN (0, 1)",
             name="ck_local_contents_is_active",
         ),
@@ -206,6 +178,7 @@ class LocalContent(Base):
         primary_key=True,
         autoincrement=True,
     )
+
     region_id: Mapped[int] = mapped_column(
         ForeignKey("regions.id", ondelete="RESTRICT"),
         nullable=False,
@@ -218,10 +191,12 @@ class LocalContent(Base):
         ForeignKey("data_sources.id", ondelete="SET NULL"),
         nullable=True,
     )
+
     external_id: Mapped[str | None] = mapped_column(
         String,
         nullable=True,
     )
+
     title: Mapped[str] = mapped_column(
         String,
         nullable=False,
@@ -234,6 +209,7 @@ class LocalContent(Base):
         Text,
         nullable=True,
     )
+
     address: Mapped[str | None] = mapped_column(
         String,
         nullable=True,
@@ -246,6 +222,7 @@ class LocalContent(Base):
         String,
         nullable=True,
     )
+
     latitude: Mapped[float | None] = mapped_column(
         Float,
         nullable=True,
@@ -254,6 +231,7 @@ class LocalContent(Base):
         Float,
         nullable=True,
     )
+
     phone: Mapped[str | None] = mapped_column(
         String,
         nullable=True,
@@ -266,6 +244,7 @@ class LocalContent(Base):
         String,
         nullable=True,
     )
+
     start_date: Mapped[date | None] = mapped_column(
         Date,
         nullable=True,
@@ -274,6 +253,7 @@ class LocalContent(Base):
         Date,
         nullable=True,
     )
+
     opening_hours: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
@@ -290,6 +270,7 @@ class LocalContent(Base):
         Text,
         nullable=True,
     )
+
     map_level: Mapped[int | None] = mapped_column(
         Integer,
         nullable=True,
@@ -302,6 +283,7 @@ class LocalContent(Base):
         Text,
         nullable=True,
     )
+
     is_active: Mapped[int] = mapped_column(
         Integer,
         nullable=False,

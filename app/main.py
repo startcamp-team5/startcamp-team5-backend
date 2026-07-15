@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.core.init_db import create_tables
+from app.locations.router import router as locations_router
 from app.posts.router import router as posts_router
 
 
@@ -19,6 +20,11 @@ app = FastAPI(
 )
 
 app.include_router(
+    locations_router,
+    prefix="/api",
+)
+
+app.include_router(
     posts_router,
     prefix="/api",
 )
@@ -26,4 +32,6 @@ app.include_router(
 
 @app.get("/health")
 def health_check() -> dict[str, str]:
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+    }
