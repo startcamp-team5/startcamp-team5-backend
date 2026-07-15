@@ -8,7 +8,7 @@ from sqlalchemy import (
     String,
     Text,
 )
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
 
@@ -28,12 +28,18 @@ class BoardCategory(Base):
         autoincrement=True,
     )
     code: Mapped[str] = mapped_column(
-        String,
+        String(30),
         nullable=False,
         unique=True,
     )
-    name: Mapped[str] = mapped_column(String, nullable=False)
-    description: Mapped[str | None] = mapped_column(Text)
+    name: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+    )
+    description: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
     display_order: Mapped[int] = mapped_column(
         Integer,
         nullable=False,
@@ -63,10 +69,13 @@ class Post(Base):
             name="ck_posts_content_length",
         ),
         CheckConstraint(
-            "length(trim(edit_password_hash)) > 0",
-            name="ck_posts_password_hash_present",
+            "length(edit_password) BETWEEN 4 AND 20",
+            name="ck_posts_password_length",
         ),
-        CheckConstraint("view_count >= 0", name="ck_posts_view_count"),
+        CheckConstraint(
+            "view_count >= 0",
+            name="ck_posts_view_count",
+        ),
         CheckConstraint(
             "is_deleted IN (0, 1)",
             name="ck_posts_is_deleted",
@@ -79,18 +88,33 @@ class Post(Base):
         autoincrement=True,
     )
     board_category_id: Mapped[int] = mapped_column(
-        ForeignKey("board_categories.id", ondelete="RESTRICT"),
+        ForeignKey(
+            "board_categories.id",
+            ondelete="RESTRICT",
+        ),
         nullable=False,
     )
-    board_category: Mapped["BoardCategory"] = relationship(lazy="joined")
     local_content_id: Mapped[int | None] = mapped_column(
-        ForeignKey("local_contents.id", ondelete="SET NULL"),
+        ForeignKey(
+            "local_contents.id",
+            ondelete="SET NULL",
+        ),
+        nullable=True,
     )
-    title: Mapped[str] = mapped_column(String(100), nullable=False)
-    content: Mapped[str] = mapped_column(Text, nullable=False)
-    edit_password_hash: Mapped[str] = mapped_column(Text, nullable=False)
+    title: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+    )
+    content: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
+    edit_password: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+    )
     author_name: Mapped[str] = mapped_column(
-        String,
+        String(30),
         nullable=False,
         default="익명",
     )
@@ -115,4 +139,7 @@ class Post(Base):
         default=datetime.now,
         onupdate=datetime.now,
     )
-    deleted_at: Mapped[datetime | None] = mapped_column(DateTime)
+    deleted_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+    )
