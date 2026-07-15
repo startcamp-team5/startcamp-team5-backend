@@ -8,7 +8,7 @@ from sqlalchemy import (
     String,
     Text,
 )
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 
@@ -63,8 +63,8 @@ class Post(Base):
             name="ck_posts_content_length",
         ),
         CheckConstraint(
-            "length(edit_password) BETWEEN 4 AND 20",
-            name="ck_posts_password_length",
+            "length(trim(edit_password_hash)) > 0",
+            name="ck_posts_password_hash_present",
         ),
         CheckConstraint("view_count >= 0", name="ck_posts_view_count"),
         CheckConstraint(
@@ -82,12 +82,13 @@ class Post(Base):
         ForeignKey("board_categories.id", ondelete="RESTRICT"),
         nullable=False,
     )
+    board_category: Mapped["BoardCategory"] = relationship(lazy="joined")
     local_content_id: Mapped[int | None] = mapped_column(
         ForeignKey("local_contents.id", ondelete="SET NULL"),
     )
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
-    edit_password: Mapped[str] = mapped_column(String(20), nullable=False)
+    edit_password_hash: Mapped[str] = mapped_column(Text, nullable=False)
     author_name: Mapped[str] = mapped_column(
         String,
         nullable=False,
