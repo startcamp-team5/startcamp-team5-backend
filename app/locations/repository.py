@@ -1,163 +1,191 @@
-from sqlalchemy import func, or_, select
+from sqlalchemy import select, func, or_
 from sqlalchemy.orm import Session
 
-from app.locations.model import ContentCategory, LocalContent
+
+from app.locations.model import (
+    LocalContent,
+    ContentCategory
+)
+
 
 
 class LocationRepository:
-    def __init__(self, db: Session) -> None:
+
+
+    def __init__(
+        self,
+        db: Session
+    ):
         self.db = db
 
-    def find_category_by_code(
-        self,
-        category_code: str,
-    ) -> ContentCategory | None:
-        statement = select(ContentCategory).where(
-            ContentCategory.code == category_code,
-            ContentCategory.is_active == 1,
-        )
 
-        return self.db.scalar(statement)
+
+    # 목록 조회
 
     def find_all(
         self,
         category: str | None,
         keyword: str | None,
         page: int,
-        size: int,
-    ) -> tuple[list[tuple[LocalContent, str]], int]:
-        filters = [
-            LocalContent.is_active == 1,
-            ContentCategory.is_active == 1,
+        size: int
+    ):
+
+
+        conditions = [
+            LocalContent.is_active == 1
         ]
 
-        if category is not None:
-            filters.append(
+
+
+        if category:
+
+            conditions.append(
                 ContentCategory.code == category
             )
 
-        if keyword is not None:
-            search_keyword = f"%{keyword.strip()}%"
 
-            filters.append(
+        if keyword:
+
+            keyword = f"%{keyword}%"
+
+            conditions.append(
                 or_(
-                    LocalContent.title.like(search_keyword),
-                    LocalContent.address.like(search_keyword),
-                    LocalContent.description.like(search_keyword),
-                    LocalContent.search_text.like(search_keyword),
+                    LocalContent.title.like(keyword),
+                    LocalContent.address.like(keyword)
                 )
             )
 
-        list_statement = (
+
+
+        query = (
             select(
                 LocalContent,
-                ContentCategory.code,
+                ContentCategory.code
             )
             .join(
                 ContentCategory,
-                ContentCategory.id == LocalContent.category_id,
+                ContentCategory.id
+                ==
+                LocalContent.category_id
             )
-            .where(*filters)
-            .order_by(
-                LocalContent.title.asc(),
-                LocalContent.id.asc(),
+            .where(
+                *conditions
             )
-            .offset((page - 1) * size)
+            .offset(
+                (page-1)*size
+            )
             .limit(size)
         )
 
-        count_statement = (
-            select(func.count(LocalContent.id))
-            .select_from(LocalContent)
-            .join(
-                ContentCategory,
-                ContentCategory.id == LocalContent.category_id,
-            )
-            .where(*filters)
-        )
 
-        rows = self.db.execute(list_statement).all()
-        total = self.db.scalar(count_statement) or 0
-
-        return [
-            (row[0], row[1])
-            for row in rows
-        ], total
-
-    def find_detail_by_id(
-        self,
-        location_id: int,
-    ) -> tuple[LocalContent, str] | None:
-        statement = (
+        count_query = (
             select(
-                LocalContent,
-                ContentCategory.code,
+                func.count(LocalContent.id)
             )
             .join(
                 ContentCategory,
-                ContentCategory.id == LocalContent.category_id,
+                ContentCategory.id
+                ==
+                LocalContent.category_id
             )
             .where(
-                LocalContent.id == location_id,
-                LocalContent.is_active == 1,
-                ContentCategory.is_active == 1,
+                *conditions
             )
         )
 
-        row = self.db.execute(statement).first()
 
-        if row is None:
-            return None
 
-        return row[0], row[1]
+        result = self.db.execute(query).all()
 
-    def find_map_items(
+        total = self.db.scalar(
+            count_query
+        )
+
+
+        return result, total or 0
+
+
+
+    # 상세 조회
+
+    def find_by_external_id(
         self,
-        category: str | None,
-        keyword: str | None,
-    ) -> list[tuple[LocalContent, str]]:
-        filters = [
-            LocalContent.is_active == 1,
-            ContentCategory.is_active == 1,
-            LocalContent.latitude.is_not(None),
-            LocalContent.longitude.is_not(None),
-        ]
+        external_id: str
+    ):
 
-        if category is not None:
-            filters.append(
-                ContentCategory.code == category
-            )
 
-        if keyword is not None:
-            search_keyword = f"%{keyword.strip()}%"
-
-            filters.append(
-                or_(
-                    LocalContent.title.like(search_keyword),
-                    LocalContent.address.like(search_keyword),
-                    LocalContent.search_text.like(search_keyword),
-                )
-            )
-
-        statement = (
+        query = (
             select(
                 LocalContent,
-                ContentCategory.code,
+                ContentCategory.code
             )
             .join(
                 ContentCategory,
-                ContentCategory.id == LocalContent.category_id,
+                ContentCategory.id
+                ==
+                LocalContent.category_id
             )
-            .where(*filters)
-            .order_by(
-                LocalContent.title.asc(),
-                LocalContent.id.asc(),
+            .where(
+                LocalContent.external_id
+                ==
+                external_id
             )
         )
 
-        rows = self.db.execute(statement).all()
 
-        return [
-            (row[0], row[1])
-            for row in rows
+        return self.db.execute(
+            query
+        ).first()
+
+
+
+    # 지도 조회
+
+    def find_map_data(
+        self,
+        category: str | None
+    ):
+
+
+        conditions = [
+
+            LocalContent.latitude.is_not(None),
+
+            LocalContent.longitude.is_not(None)
+
         ]
+
+
+        if category:
+
+            conditions.append(
+                ContentCategory.code
+                ==
+                category
+            )
+
+
+        query = (
+
+            select(
+                LocalContent,
+                ContentCategory.code
+            )
+
+            .join(
+                ContentCategory,
+                ContentCategory.id
+                ==
+                LocalContent.category_id
+            )
+
+            .where(
+                *conditions
+            )
+
+        )
+
+
+        return self.db.execute(
+            query
+        ).all()
