@@ -9,6 +9,8 @@ from app.locations.model import (
 )
 from app.posts.model import BoardCategory, Post
 
+from app.comments.model import Comment
+
 
 def create_tables() -> None:
     Base.metadata.create_all(bind=engine)
