@@ -4,13 +4,12 @@ from fastapi import FastAPI
 
 from app.core.init_db import create_tables
 from app.posts.router import router as posts_router
-
+from app.comments.router import router as comments_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_tables()
     yield
-
 
 app = FastAPI(
     title="LocalHub API",
@@ -18,11 +17,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.include_router(
-    posts_router,
-    prefix="/api",
-)
-
+app.include_router(posts_router, prefix="/api")
+app.include_router(comments_router, prefix="/api")
 
 @app.get("/health")
 def health_check() -> dict[str, str]:
