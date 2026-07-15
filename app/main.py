@@ -2,8 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 
-from app.core.init_db import create_tables
-from app.data.seed_data import seed_database
+from app.core.init_db import initialize_database
 
 from app.locations.router import router as locations_router
 from app.posts.router import router as posts_router
@@ -16,11 +15,7 @@ async def lifespan(app: FastAPI):
     print("Application startup")
     print("==============================")
 
-    # 1. DB 테이블 생성
-    create_tables()
-
-    # 2. 초기 데이터 적재
-    seed_database()
+    initialize_database()
 
     yield
 

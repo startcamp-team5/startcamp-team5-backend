@@ -7,7 +7,6 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.database import SessionLocal
-from app.core.init_db import create_tables
 from app.locations.model import (
     ContentCategory,
     DataSource,
