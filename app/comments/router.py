@@ -96,7 +96,8 @@ def delete_comment(
     comment_id: int = Path(gt=0, description="댓글 ID"),
     request: CommentDeleteRequest = Body(...),
 ) -> ApiResponse[None]:
-    CommentService(db).delete_comment(comment_id=comment_id, edit_password=request.edit_password)
+    CommentService(db).delete_comment(post_id=postId, comment_id=comment_id, edit_password=request.edit_password)
+
 
     return ApiResponse(
         success=True,
@@ -116,5 +117,5 @@ def update_comment(
     postId: int = Path(gt=0, description="게시글 ID"),
     comment_id: int = Path(gt=0, description="댓글 ID"),
 ) -> ApiResponse[None]:
-    CommentService(db).update_comment(comment_id=comment_id, request=request)
+    CommentService(db).update_comment(post_id=postId, comment_id=comment_id, request=request)
     return ApiResponse(success=True, message="댓글이 수정되었습니다.", data=None)

@@ -50,25 +50,17 @@ class CommentService:
 
         return self.comment_repo.find_by_post_id(post_id=post_id, page=page, size=size)
 
-    def delete_comment(self, comment_id: int, edit_password: str) -> None:
+    def delete_comment(self, post_id: int, comment_id: int, edit_password: str) -> None:
         comment = self.comment_repo.find_by_id(comment_id)
-        if comment is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="댓글을 찾을 수 없습니다.",
-            )
-
+        if comment is None or comment.post_id != post_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="댓글을 찾을 수 없습니다.")
         if comment.edit_password != edit_password:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="비밀번호가 일치하지 않습니다.",
-            )
-
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="비밀번호가 일치하지 않습니다.")
         self.comment_repo.delete(comment)
-
-    def update_comment(self, comment_id: int, request: CommentUpdateRequest) -> None:
+        
+    def update_comment(self, post_id: int, comment_id: int, request: CommentUpdateRequest) -> None:
         comment = self.comment_repo.find_by_id(comment_id)
-        if comment is None:
+        if comment is None or comment.post_id != post_id:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="댓글을 찾을 수 없습니다.")
         if comment.edit_password != request.edit_password:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="비밀번호가 일치하지 않습니다.")
