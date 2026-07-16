@@ -107,11 +107,11 @@ class PostService:
                 detail="존재하지 않는 게시판 카테고리입니다.",
             )
 
+        local_content_id: int | None = None
+
         if request.location_id is not None:
-            local_content = (
-                self.repository.find_local_content_by_id(
-                    request.location_id
-                )
+            local_content = self.repository.find_local_content_by_external_id(
+                request.location_id
             )
 
             if local_content is None:
@@ -120,9 +120,11 @@ class PostService:
                     detail="연결할 지역정보를 찾을 수 없습니다.",
                 )
 
+            local_content_id = local_content.id
+
         post = Post(
             board_category_id=board_category.id,
-            local_content_id=request.location_id,
+            local_content_id=local_content_id,
             title=request.title,
             content=request.content,
             author_name=request.author_name,

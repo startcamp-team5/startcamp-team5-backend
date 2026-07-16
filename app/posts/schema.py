@@ -35,10 +35,10 @@ class PostCreateRequest(BaseModel):
 
         return data
 
-    location_id: int | None = Field(
+    location_id: str | None = Field(
         default=None,
         alias="locationId",
-        gt=0,
+        min_length=1,
     )
     category: str = Field(
         alias="category",

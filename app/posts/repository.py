@@ -20,12 +20,12 @@ class PostRepository:
 
         return self.db.scalar(statement)
 
-    def find_local_content_by_id(
+    def find_local_content_by_external_id(
         self,
-        local_content_id: int,
+        external_id: str,
     ) -> LocalContent | None:
         statement = select(LocalContent).where(
-            LocalContent.id == local_content_id,
+            LocalContent.external_id == external_id,
             LocalContent.is_active == 1,
         )
 
